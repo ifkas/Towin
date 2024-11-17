@@ -6,7 +6,8 @@ import { Link } from "expo-router";
 type ShoppingListItem = {
   id: string;
   name: string;
-  completed?: number;
+  completedAtTimestamp?: number;
+  lastUpdatedTimestamp?: number;
 };
 
 const initialItems: ShoppingListItem[] = [
@@ -23,7 +24,7 @@ export default function App() {
 
   const handleSubmit = () => {
     if (value.trim() === "") return;
-    setItems([{ id: Math.random().toString(), name: value }, ...items]);
+    setItems([{ id: Math.random().toString(), name: value, lastUpdatedTimestamp: Date.now() }, ...items]);
     setValue("");
   };
 
@@ -35,7 +36,7 @@ export default function App() {
     setItems(
       items.map((item) => {
         if (item.id === id) {
-          return { ...item, completed: item.completed ? undefined : Date.now() };
+          return { ...item, lastUpdatedTimestamp: Date.now(), completedAtTimestamp: item.completedAtTimestamp ? undefined : Date.now() };
         }
         return item;
       })
@@ -44,7 +45,7 @@ export default function App() {
 
   return (
     <FlatList
-      data={items}
+      data={orderShoppingList(items)}
       style={styles.container}
       contentContainerStyle={styles.contentContainer}
       stickyHeaderIndices={[0]}
@@ -68,7 +69,7 @@ export default function App() {
           name={item.name}
           onDeleted={() => handleDelete(item.id)}
           onToggleComplete={() => handleComplete(item.id)}
-          isCompleted={Boolean(item.completed)}
+          isCompleted={Boolean(item.completedAtTimestamp)}
         />
       )}
     />
@@ -102,6 +103,28 @@ export default function App() {
   {
     /* </ScrollView> */
   }
+}
+
+function orderShoppingList(shoppingList: ShoppingListItem[]) {
+  return shoppingList.sort((item1, item2) => {
+    if (item1.completedAtTimestamp && item2.completedAtTimestamp) {
+      return item2.completedAtTimestamp - item1.completedAtTimestamp;
+    }
+
+    if (item1.completedAtTimestamp && !item2.completedAtTimestamp) {
+      return 1;
+    }
+
+    if (!item1.completedAtTimestamp && item2.completedAtTimestamp) {
+      return -1;
+    }
+
+    if (!item1.completedAtTimestamp && !item2.completedAtTimestamp) {
+      return item2.lastUpdatedTimestamp - item1.lastUpdatedTimestamp;
+    }
+
+    return 0;
+  });
 }
 
 const styles = StyleSheet.create({

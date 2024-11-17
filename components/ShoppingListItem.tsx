@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity, StyleSheet, Alert, Pressable } from "react-native";
-import { CircleCheckBig, Circle, Check } from "lucide-react-native";
+import { CircleX, Circle, Check } from "lucide-react-native";
 
 type Props = {
   name: string;
@@ -33,7 +33,7 @@ export function ShoppingListItem({ name, isCompleted, onDeleted, onToggleComplet
       </View>
       <View style={styles.row}>
         <TouchableOpacity onPress={handleDelete} activeOpacity={0.9}>
-          <CircleCheckBig color={isCompleted ? "gray" : "red"} size={20} />
+          <CircleX color={isCompleted ? "gray" : "red"} size={20} />
         </TouchableOpacity>
       </View>
     </Pressable>
