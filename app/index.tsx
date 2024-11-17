@@ -10,9 +10,9 @@ type ShoppingListItem = {
 };
 
 const initialItems: ShoppingListItem[] = [
-  // { id: "1", name: "Coffee" },
-  // { id: "2", name: "Tea" },
-  // { id: "3", name: "Sprite" },
+  { id: "1", name: "Coffee" },
+  { id: "2", name: "Tea" },
+  { id: "3", name: "Sprite" },
 ];
 
 import { useState } from "react";
@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    // justifyContent: "center",
+    paddingVertical: 12,
   },
   contentContainer: {
     paddingBottom: 10,

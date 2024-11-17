@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity, StyleSheet, Alert, Pressable } from "react-native";
-import { CircleCheckBig, CircleX } from "lucide-react-native";
+import { CircleCheckBig, Circle, Check } from "lucide-react-native";
 
 type Props = {
   name: string;
@@ -25,17 +25,17 @@ export function ShoppingListItem({ name, isCompleted, onDeleted, onToggleComplet
 
   return (
     <Pressable onPress={onToggleComplete} style={[styles.itemsContainer, isCompleted ? styles.completedContainer : undefined]}>
-      <Text style={[styles.itemText, isCompleted ? styles.completedText : undefined]}>{name}</Text>
-      <TouchableOpacity
-        style={[styles.button, isCompleted ? styles.completedButton : undefined]}
-        onPress={handleDelete}
-        activeOpacity={0.9}
-      >
-        <View style={styles.buttonContent}>
-          <Text style={styles.buttonText}>{!isCompleted ? "Delete" : "Evoke"}</Text>
-          {isCompleted ? <CircleCheckBig color="white" size={24} /> : <CircleX color="white" size={24} />}
-        </View>
-      </TouchableOpacity>
+      <View style={styles.row}>
+        {isCompleted ? <Check color="gray" size={20} /> : <Circle color="blue" size={20} />}
+        <Text numberOfLines={2} style={[styles.itemText, isCompleted ? styles.completedText : undefined]}>
+          {name}
+        </Text>
+      </View>
+      <View style={styles.row}>
+        <TouchableOpacity onPress={handleDelete} activeOpacity={0.9}>
+          <CircleCheckBig color={isCompleted ? "gray" : "red"} size={20} />
+        </TouchableOpacity>
+      </View>
     </Pressable>
   );
 }
@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "blue",
     padding: 20,
-    borderRadius: 10,
+    borderRadius: 0,
   },
   completedContainer: {
     backgroundColor: "lightgreen",
@@ -59,27 +59,13 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 20,
   },
-  buttonContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 3,
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-  },
-  button: {
-    backgroundColor: "blue",
-    borderRadius: 5,
-  },
-  buttonText: {
-    color: "white",
-    fontSize: 18,
-  },
-  completedButton: {
-    backgroundColor: "gray",
-  },
   completedText: {
     color: "gray",
     textDecorationLine: "line-through",
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 7,
   },
 });
