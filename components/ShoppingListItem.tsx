@@ -1,13 +1,14 @@
-import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Alert, Pressable } from "react-native";
 import { CircleCheckBig, CircleX } from "lucide-react-native";
 
 type Props = {
   name: string;
   isCompleted?: boolean;
   onDeleted: () => void;
+  onToggleComplete?: () => void;
 };
 
-export function ShoppingListItem({ name, isCompleted, onDeleted }: Props) {
+export function ShoppingListItem({ name, isCompleted, onDeleted, onToggleComplete }: Props) {
   const handleDelete = () => {
     Alert.alert("Delete", `Are you sure you want to delete ${name}?`, [
       {
@@ -23,7 +24,7 @@ export function ShoppingListItem({ name, isCompleted, onDeleted }: Props) {
   };
 
   return (
-    <View style={[styles.itemsContainer, isCompleted ? styles.completedContainer : undefined]}>
+    <Pressable onPress={onToggleComplete} style={[styles.itemsContainer, isCompleted ? styles.completedContainer : undefined]}>
       <Text style={[styles.itemText, isCompleted ? styles.completedText : undefined]}>{name}</Text>
       <TouchableOpacity
         style={[styles.button, isCompleted ? styles.completedButton : undefined]}
@@ -35,7 +36,7 @@ export function ShoppingListItem({ name, isCompleted, onDeleted }: Props) {
           {isCompleted ? <CircleCheckBig color="white" size={24} /> : <CircleX color="white" size={24} />}
         </View>
       </TouchableOpacity>
-    </View>
+    </Pressable>
   );
 }
 

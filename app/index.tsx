@@ -6,6 +6,7 @@ import { Link } from "expo-router";
 type ShoppingListItem = {
   id: string;
   name: string;
+  completed?: number;
 };
 
 const initialItems: ShoppingListItem[] = [
@@ -30,6 +31,17 @@ export default function App() {
     setItems(items.filter((item) => item.id !== id));
   };
 
+  const handleComplete = (id: string) => {
+    setItems(
+      items.map((item) => {
+        if (item.id === id) {
+          return { ...item, completed: item.completed ? undefined : Date.now() };
+        }
+        return item;
+      })
+    );
+  };
+
   return (
     <FlatList
       data={items}
@@ -51,7 +63,14 @@ export default function App() {
           style={styles.textInput}
         />
       }
-      renderItem={({ item }) => <ShoppingListItem name={item.name} onDeleted={() => handleDelete(item.id)} />}
+      renderItem={({ item }) => (
+        <ShoppingListItem
+          name={item.name}
+          onDeleted={() => handleDelete(item.id)}
+          onToggleComplete={() => handleComplete(item.id)}
+          isCompleted={Boolean(item.completed)}
+        />
+      )}
     />
   );
   {
