@@ -1,9 +1,19 @@
 import React from "react";
 import { useEffect, useState } from "react";
-import { StyleSheet, View, TextInput, Text, ScrollView, FlatList } from "react-native";
-import { ShoppingListItem } from "../components/ShoppingListItem";
-import { Link } from "expo-router";
+import { StyleSheet, View, TextInput, Text, ScrollView, FlatList, LayoutAnimation, UIManager, Platform } from "react-native";
+
 import { getFromStorage, saveToStorage } from "../utils/storage";
+
+import { ShoppingListItem } from "../components/ShoppingListItem";
+import Layout from "./_layout";
+// import { Link } from "expo-router";
+
+// Enable LayoutAnimation on Android
+if (Platform.OS === "android") {
+  if (UIManager.setLayoutAnimationEnabledExperimental) {
+    UIManager.setLayoutAnimationEnabledExperimental(true);
+  }
+}
 
 const storageKey = "shopping-list";
 
@@ -29,12 +39,14 @@ export default function App() {
     (async () => {
       const data = await getFromStorage(storageKey);
       if (data) {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
         setItems(data);
       }
     })();
   }, []);
 
   const handleSubmit = () => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     if (value.trim() === "") return;
     setItems([{ id: Math.random().toString(), name: value, lastUpdatedTimestamp: Date.now() }, ...items]);
     saveToStorage(storageKey, [{ id: Math.random().toString(), name: value, lastUpdatedTimestamp: Date.now() }, ...items]);
@@ -42,15 +54,17 @@ export default function App() {
   };
 
   const handleDelete = (id: string) => {
-    setItems(items.filter((item) => item.id !== id));
     saveToStorage(
       storageKey,
       items.filter((item) => item.id !== id)
     );
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setItems(items.filter((item) => item.id !== id));
   };
 
   const handleComplete = (id: string) => {
-    setItems(
+    saveToStorage(
+      storageKey,
       items.map((item) => {
         if (item.id === id) {
           return { ...item, lastUpdatedTimestamp: Date.now(), completedAtTimestamp: item.completedAtTimestamp ? undefined : Date.now() };
@@ -58,8 +72,8 @@ export default function App() {
         return item;
       })
     );
-    saveToStorage(
-      storageKey,
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setItems(
       items.map((item) => {
         if (item.id === id) {
           return { ...item, lastUpdatedTimestamp: Date.now(), completedAtTimestamp: item.completedAtTimestamp ? undefined : Date.now() };

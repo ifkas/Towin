@@ -31,6 +31,7 @@ npx expo start
 - Mark items as completed/uncompleted
 - Sort items based on completion status and last updated timestamp
 - Async Storage
+- Layout Animation
 
 ## License
 
