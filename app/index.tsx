@@ -1,12 +1,11 @@
 import React from "react";
 import { useEffect, useState } from "react";
-import { StyleSheet, View, TextInput, Text, ScrollView, FlatList, LayoutAnimation, UIManager, Platform } from "react-native";
+import { StyleSheet, View, TextInput, Text, FlatList, LayoutAnimation, UIManager, Platform } from "react-native";
+import * as Haptics from "expo-haptics";
 
 import { getFromStorage, saveToStorage } from "../utils/storage";
 
 import { ShoppingListItem } from "../components/ShoppingListItem";
-import Layout from "./_layout";
-// import { Link } from "expo-router";
 
 // Enable LayoutAnimation on Android
 if (Platform.OS === "android") {
@@ -24,14 +23,7 @@ type ShoppingListItem = {
   lastUpdatedTimestamp: number;
 };
 
-// const initialItems: ShoppingListItem[] = [
-//   { id: "1", name: "Coffee" },
-//   { id: "2", name: "Tea" },
-//   { id: "3", name: "Sprite" },
-// ];
-
 export default function App() {
-  // const [items, setItems] = useState<ShoppingListItem[]>(initialItems);
   const [items, setItems] = useState<ShoppingListItem[]>([]);
   const [value, setValue] = useState<string>("");
 
@@ -59,6 +51,7 @@ export default function App() {
       items.filter((item) => item.id !== id)
     );
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setItems(items.filter((item) => item.id !== id));
   };
 
@@ -76,6 +69,11 @@ export default function App() {
     setItems(
       items.map((item) => {
         if (item.id === id) {
+          if (item.completedAtTimestamp) {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+          } else {
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          }
           return { ...item, lastUpdatedTimestamp: Date.now(), completedAtTimestamp: item.completedAtTimestamp ? undefined : Date.now() };
         }
         return item;
@@ -114,35 +112,6 @@ export default function App() {
       )}
     />
   );
-  {
-    /* <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer} stickyHeaderIndices={[0]}> */
-  }
-  {
-    /* <Link href="/counter" style={{ textAlign: "center", marginBottom: 18, fontSize: 24 }}>
-        Go to Counter
-      </Link> */
-  }
-  {
-    /* <TextInput
-          value={value}
-          onChangeText={setValue}
-          returnKeyType="done"
-          onSubmitEditing={handleSubmit}
-          placeholder="E.g. Coffee"
-          style={styles.textInput}
-        />
-        {items.map((item) => (
-          <ShoppingListItem key={item.id} name={item.name} />
-        ))} */
-  }
-  {
-    /* <ShoppingListItem name="Coffee" />
-      <ShoppingListItem name="Tea" isCompleted />
-      <ShoppingListItem name="Sprite" /> */
-  }
-  {
-    /* </ScrollView> */
-  }
 }
 
 function orderShoppingList(shoppingList: ShoppingListItem[]) {
