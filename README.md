@@ -32,6 +32,8 @@ npx expo start
 - Sort items based on completion status and last updated timestamp
 - Async Storage
 - Layout Animation
+- Haptics
+- Push Notifications
 
 ## License
 
