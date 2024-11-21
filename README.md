@@ -33,7 +33,7 @@ npx expo start
 - Async Storage
 - Layout Animation
 - Haptics
-- Push Notifications
+- Push Notifications and Schedule Notifications
 
 ## License
 

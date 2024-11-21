@@ -1,13 +1,31 @@
-import { useRouter } from "expo-router";
-import { Text, View, StyleSheet, Touchable, TouchableOpacity } from "react-native";
+// import { useRouter } from "expo-router";
+import { Text, View, StyleSheet, Touchable, TouchableOpacity, Alert } from "react-native";
 import { registerForPushNotificationsAsync } from "../../utils/registerForPushNotificationsAsync";
+import * as Notifications from "expo-notifications";
 
 export default function CounterScreen() {
-  const router = useRouter();
+  // const router = useRouter();
 
-  const handleRequestPermission = async () => {
+  // const handleRequestPermission = async () => {
+  //   const result = await registerForPushNotificationsAsync();
+  //   // console.log(result);
+  // };
+
+  const schedulePushNotification = async () => {
     const result = await registerForPushNotificationsAsync();
-    // console.log(result);
+    if (result === "granted") {
+      console.log("Notification permissions granted.");
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: "I am notification from your app! 📬",
+          // body: "Here is the notification body",
+          // data: { data: "goes here" },
+        },
+        trigger: { seconds: 4, repeats: false, channelId: "default" },
+      });
+    } else {
+      Alert.alert("Notification permissions denied.", "Please enable notifications in your system settings.");
+    }
   };
 
   return (
@@ -16,8 +34,9 @@ export default function CounterScreen() {
         <Text style={{ textAlign: "center", marginBottom: 18, fontSize: 24 }}>Go to Idea</Text>
       </TouchableOpacity> */}
       {/* <Text style={styles.text}>This is the counter</Text> */}
-      <TouchableOpacity style={styles.button} onPress={handleRequestPermission}>
-        <Text style={styles.text}>Request Permission</Text>
+      <TouchableOpacity style={styles.button} activeOpacity={0.8} onPress={schedulePushNotification}>
+        {/* <Text style={styles.text}>Request Permission</Text> */}
+        <Text style={styles.text}>Schedule Notification</Text>
       </TouchableOpacity>
     </View>
   );
