@@ -4,55 +4,84 @@ import { registerForPushNotificationsAsync } from "../../utils/registerForPushNo
 import * as Notifications from "expo-notifications";
 import { Duration, isBefore, intervalToDuration } from "date-fns";
 import { TimeSegment } from "../../components/TimeSegment";
+import { getFromStorage, saveToStorage } from "../../utils/storage";
 
-// 10 seconds from now
-const timestamp = Date.now() + 10 * 1000;
+// 10 seconds from now (hardcoded for now)
+const frequency = 10 * 1000;
+
+const countdownStorageKey = "countdownState";
 
 type CountdownStatus = {
   isOverdue: boolean;
   distance: Duration;
 };
 
+type PersistedCountdownState = {
+  currentNotificationId: string | undefined;
+  completedAtTimestamps: number[];
+};
+
 export default function CounterScreen() {
-  // const [secondsElapsed, setSecondsElapsed] = useState(0);
+  const [countdownState, setCountdownState] = useState<PersistedCountdownState | null>(null);
   const [status, setStatus] = useState<CountdownStatus | null>(null);
 
   // console.log(status);
+  const lastCompletedTimestamp = countdownState?.completedAtTimestamps[0];
+
+  useEffect(() => {
+    const loadCountdownState = async () => {
+      const storedState = await getFromStorage(countdownStorageKey);
+      if (storedState) {
+        setCountdownState(storedState);
+      }
+    };
+
+    loadCountdownState();
+  }, []);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
+      const timestamp = lastCompletedTimestamp ? lastCompletedTimestamp + frequency : Date.now() + frequency;
       const isOverdue = isBefore(timestamp, Date.now());
       const distance = intervalToDuration(isOverdue ? { start: timestamp, end: Date.now() } : { start: Date.now(), end: timestamp });
       setStatus({ isOverdue, distance });
     }, 1000);
 
     return () => clearInterval(intervalId);
-  }, []);
+  }, [lastCompletedTimestamp]);
 
   const schedulePushNotification = async () => {
+    let pushNotificationId;
     const result = await registerForPushNotificationsAsync();
     if (result === "granted") {
       console.log("Notification permissions granted.");
-      await Notifications.scheduleNotificationAsync({
+      pushNotificationId = await Notifications.scheduleNotificationAsync({
         content: {
-          title: "I am notification from your app! 📬",
-          // body: "Here is the notification body",
-          // data: { data: "goes here" },
+          title: "The thing is due! 📬",
         },
-        trigger: { seconds: 4, repeats: false, channelId: "default" },
+        trigger: { seconds: frequency / 1000, repeats: false, channelId: "default" },
       });
     } else {
       Alert.alert("Notification permissions denied.", "Please enable notifications in your system settings.");
     }
+    if (countdownState?.currentNotificationId) {
+      await Notifications.cancelScheduledNotificationAsync(countdownState?.currentNotificationId);
+    }
+    const newCountdownState = {
+      currentNotificationId: pushNotificationId,
+      completedAtTimestamps: [Date.now(), ...(countdownState?.completedAtTimestamps ?? [])],
+    };
+    setCountdownState(newCountdownState);
+    await saveToStorage(countdownStorageKey, newCountdownState);
   };
 
   return (
     <View style={[styles.container, status?.isOverdue ? styles.containerLate : undefined]}>
       <View>
         {status?.isOverdue ? (
-          <Text style={styles.heading}>Overdue</Text>
+          <Text style={[styles.heading, status?.isOverdue ? styles.whiteText : undefined]}>Overdue</Text>
         ) : (
-          <Text style={[styles.heading, status?.isOverdue ? styles.whiteText : undefined]}>Countdown</Text>
+          <Text style={styles.heading}>Countdown</Text>
         )}
       </View>
       <View style={styles.row}>
