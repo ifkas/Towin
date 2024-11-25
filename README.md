@@ -30,7 +30,7 @@ npx expo start
 - Delete items from the shopping list
 - Mark items as completed/uncompleted
 - Sort items based on completion status and last updated timestamp
-- Async Storage
+- Async Storage and Data persisting
 - Layout Animation
 - Haptics
 - Push Notifications and Schedule Notifications

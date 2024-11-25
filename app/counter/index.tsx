@@ -1,11 +1,13 @@
-import { useEffect, useState } from "react";
-import { Text, View, StyleSheet, TouchableOpacity, Alert, ActivityIndicator } from "react-native";
+import { useEffect, useRef, useState } from "react";
+import { Text, View, StyleSheet, TouchableOpacity, Alert, ActivityIndicator, Dimensions } from "react-native";
 
 // Expo
 import * as Notifications from "expo-notifications";
+import * as Haptics from "expo-haptics";
 
 // Dependency
 import { Duration, isBefore, intervalToDuration } from "date-fns";
+import ConfettiCannon from "react-native-confetti-cannon";
 
 // Components
 import { TimeSegment } from "../../components/TimeSegment";
@@ -15,7 +17,9 @@ import { getFromStorage, saveToStorage } from "../../utils/storage";
 import { registerForPushNotificationsAsync } from "../../utils/registerForPushNotificationsAsync";
 
 // 10 seconds from now (hardcoded for now)
-const frequency = 10 * 1000;
+// const frequency = 10 * 1000;
+// 14 days in milliseconds
+const frequency = 14 * 24 * 60 * 60 * 1000;
 
 export const countdownStorageKey = "countdownState";
 
@@ -30,6 +34,7 @@ export type PersistedCountdownState = {
 };
 
 export default function CounterScreen() {
+  const confettiRef = useRef<any>();
   const [countdownState, setCountdownState] = useState<PersistedCountdownState | null>(null);
   const [status, setStatus] = useState<CountdownStatus | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -63,6 +68,8 @@ export default function CounterScreen() {
   }, [lastCompletedTimestamp]);
 
   const schedulePushNotification = async () => {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    confettiRef?.current?.start();
     let pushNotificationId;
     const result = await registerForPushNotificationsAsync();
     if (result === "granted") {
@@ -113,6 +120,13 @@ export default function CounterScreen() {
       <TouchableOpacity style={styles.button} activeOpacity={0.8} onPress={schedulePushNotification}>
         <Text style={styles.text}>Mark as done</Text>
       </TouchableOpacity>
+      <ConfettiCannon
+        ref={confettiRef}
+        count={50}
+        origin={{ x: Dimensions.get("window").width / 2, y: -30 }}
+        autoStart={false}
+        fadeOut={true}
+      />
     </View>
   );
 }
