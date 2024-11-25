@@ -1,9 +1,9 @@
-// import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { Text, View, StyleSheet, Touchable, TouchableOpacity, Alert } from "react-native";
 import { registerForPushNotificationsAsync } from "../../utils/registerForPushNotificationsAsync";
 import * as Notifications from "expo-notifications";
 import { Duration, isBefore, intervalToDuration } from "date-fns";
+import { TimeSegment } from "../../components/TimeSegment";
 
 // 10 seconds from now
 const timestamp = Date.now() + 10 * 1000;
@@ -24,18 +24,10 @@ export default function CounterScreen() {
       const isOverdue = isBefore(timestamp, Date.now());
       const distance = intervalToDuration(isOverdue ? { start: timestamp, end: Date.now() } : { start: Date.now(), end: timestamp });
       setStatus({ isOverdue, distance });
-      // setSecondsElapsed((prev) => prev + 1);
     }, 1000);
 
     return () => clearInterval(intervalId);
   }, []);
-
-  // const router = useRouter();
-
-  // const handleRequestPermission = async () => {
-  //   const result = await registerForPushNotificationsAsync();
-  //   // console.log(result);
-  // };
 
   const schedulePushNotification = async () => {
     const result = await registerForPushNotificationsAsync();
@@ -55,15 +47,22 @@ export default function CounterScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      {/* <TouchableOpacity onPress={() => router.navigate("/idea")}>
-        <Text style={{ textAlign: "center", marginBottom: 18, fontSize: 24 }}>Go to Idea</Text>
-      </TouchableOpacity> */}
-      {/* <Text style={styles.text}>This is the counter</Text> */}
-      {/* <Text>{secondsElapsed}</Text> */}
+    <View style={[styles.container, status?.isOverdue ? styles.containerLate : undefined]}>
+      <View>
+        {status?.isOverdue ? (
+          <Text style={styles.heading}>Overdue</Text>
+        ) : (
+          <Text style={[styles.heading, status?.isOverdue ? styles.whiteText : undefined]}>Countdown</Text>
+        )}
+      </View>
+      <View style={styles.row}>
+        <TimeSegment unit="Days" number={status?.distance.days ?? 0} textStyle={status?.isOverdue ? styles.whiteText : undefined} />
+        <TimeSegment unit="Hours" number={status?.distance.hours ?? 0} textStyle={status?.isOverdue ? styles.whiteText : undefined} />
+        <TimeSegment unit="Minutes" number={status?.distance.minutes ?? 0} textStyle={status?.isOverdue ? styles.whiteText : undefined} />
+        <TimeSegment unit="Seconds" number={status?.distance.seconds ?? 0} textStyle={status?.isOverdue ? styles.whiteText : undefined} />
+      </View>
       <TouchableOpacity style={styles.button} activeOpacity={0.8} onPress={schedulePushNotification}>
-        {/* <Text style={styles.text}>Request Permission</Text> */}
-        <Text style={styles.text}>Schedule Notification</Text>
+        <Text style={styles.text}>Mark as done</Text>
       </TouchableOpacity>
     </View>
   );
@@ -80,6 +79,14 @@ const styles = StyleSheet.create({
     backgroundColor: "black",
     padding: 14,
     borderRadius: 8,
+    marginTop: 24,
+  },
+  heading: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 24,
+    color: "black",
+    textTransform: "uppercase",
   },
   text: {
     color: "white",
@@ -87,5 +94,16 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textTransform: "uppercase",
     letterSpacing: 1,
+  },
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    width: "100%",
+  },
+  containerLate: {
+    backgroundColor: "salmon",
+  },
+  whiteText: {
+    color: "white",
   },
 });
