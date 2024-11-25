@@ -1,10 +1,18 @@
 import { useEffect, useState } from "react";
-import { Text, View, StyleSheet, Touchable, TouchableOpacity, Alert } from "react-native";
-import { registerForPushNotificationsAsync } from "../../utils/registerForPushNotificationsAsync";
+import { Text, View, StyleSheet, TouchableOpacity, Alert, ActivityIndicator } from "react-native";
+
+// Expo
 import * as Notifications from "expo-notifications";
+
+// Dependency
 import { Duration, isBefore, intervalToDuration } from "date-fns";
+
+// Components
 import { TimeSegment } from "../../components/TimeSegment";
+
+// Utility
 import { getFromStorage, saveToStorage } from "../../utils/storage";
+import { registerForPushNotificationsAsync } from "../../utils/registerForPushNotificationsAsync";
 
 // 10 seconds from now (hardcoded for now)
 const frequency = 10 * 1000;
@@ -24,6 +32,7 @@ type PersistedCountdownState = {
 export default function CounterScreen() {
   const [countdownState, setCountdownState] = useState<PersistedCountdownState | null>(null);
   const [status, setStatus] = useState<CountdownStatus | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   // console.log(status);
   const lastCompletedTimestamp = countdownState?.completedAtTimestamps[0];
@@ -42,6 +51,9 @@ export default function CounterScreen() {
   useEffect(() => {
     const intervalId = setInterval(() => {
       const timestamp = lastCompletedTimestamp ? lastCompletedTimestamp + frequency : Date.now() + frequency;
+      if (lastCompletedTimestamp) {
+        setIsLoading(false);
+      }
       const isOverdue = isBefore(timestamp, Date.now());
       const distance = intervalToDuration(isOverdue ? { start: timestamp, end: Date.now() } : { start: Date.now(), end: timestamp });
       setStatus({ isOverdue, distance });
@@ -74,6 +86,14 @@ export default function CounterScreen() {
     setCountdownState(newCountdownState);
     await saveToStorage(countdownStorageKey, newCountdownState);
   };
+
+  if (isLoading) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color="black" />
+      </View>
+    );
+  }
 
   return (
     <View style={[styles.container, status?.isOverdue ? styles.containerLate : undefined]}>
