@@ -17,14 +17,14 @@ import { registerForPushNotificationsAsync } from "../../utils/registerForPushNo
 // 10 seconds from now (hardcoded for now)
 const frequency = 10 * 1000;
 
-const countdownStorageKey = "countdownState";
+export const countdownStorageKey = "countdownState";
 
 type CountdownStatus = {
   isOverdue: boolean;
   distance: Duration;
 };
 
-type PersistedCountdownState = {
+export type PersistedCountdownState = {
   currentNotificationId: string | undefined;
   completedAtTimestamps: number[];
 };
