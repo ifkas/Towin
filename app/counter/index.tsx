@@ -17,9 +17,9 @@ import { getFromStorage, saveToStorage } from "../../utils/storage";
 import { registerForPushNotificationsAsync } from "../../utils/registerForPushNotificationsAsync";
 
 // 10 seconds from now (hardcoded for now)
-// const frequency = 10 * 1000;
+const frequency = 10 * 1000;
 // 14 days in milliseconds
-const frequency = 14 * 24 * 60 * 60 * 1000;
+// const frequency = 14 * 24 * 60 * 60 * 1000;
 
 export const countdownStorageKey = "countdownState";
 
